@@ -106,7 +106,7 @@ def getJointDirection(n):
        return 1
 
 def startRefFilter():
-variables= {}
+    variables= {}
     execfile( "hubo-ref-filter.py", variables )
 
 def keyPresses(actuators,lock):
