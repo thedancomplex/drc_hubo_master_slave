@@ -2,6 +2,7 @@
 # /* -*-  indent-tabs-mode:t; tab-width: 8; c-basic-offset: 8  -*- */
 # /*
 # Copyright (c) 2013, Kenneth Chaney 
+# Copyright (c) 2013, Daniel M. Lofaro <dan@danLofaro.com>
 # All rights reserved.
 #
 # Redistribution and use in source and binary forms, with or without
@@ -104,6 +105,10 @@ def getJointDirection(n):
     else:
        return 1
 
+def startRefFilter():
+variables= {}
+    execfile( "hubo-ref-filter.py", variables )
+
 def keyPresses(actuators,lock):
  print "Keyboard checking started"
  while True:
@@ -144,7 +149,8 @@ def main(settings):
     # Open Hubo-Ach feed-forward and feed-back (reference and state) channels
     s = ach.Channel(ha.HUBO_CHAN_STATE_NAME)
     e = ach.Channel(ha.HUBO_CHAN_ENC_NAME)
-    r = ach.Channel(ha.HUBO_CHAN_REF_NAME)
+    r = ach.Channel(ha.HUBO_CHAN_REF_FILTER_NAME)
+    #r = ach.Channel(ha.HUBO_CHAN_REF_NAME)
     #s.flush()
     #r.flush()
 
@@ -196,8 +202,15 @@ def main(settings):
 
     print myActuators
     actuatorsLock = Lock()
+
+    # Start keypress process
     p = Process(target=keyPresses, args=(myActuators, actuatorsLock))
     p.start()
+
+    # Start filter channel process
+    p_filt = Process(target=startRefFilter, args=())
+    p_filt.start()
+
     print "Master Slave Server Running"
 
     while True:
